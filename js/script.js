@@ -1,30 +1,44 @@
-//Yaptığınız yapıya Local Storage'ı da ekleyip verilerin kaybolmamasını sağlayın.
-
-
 // Identifications
 const inputDOM = document.querySelector("#task")
 const submitDOM = document.querySelector("#liveToastBtn")
 const ulDOM = document.querySelector("#list")
 
+// First Config from localStorage
+let itemsArray = { ...localStorage }
+let keys = Object.keys(itemsArray)
+if (keys.length > 0) {
+    keys.forEach(element => createLi(element))
+}
+
 // Adding Function
 function newElement() {
-    if (inputDOM.value == "") {
-        $('.error').toast('show')
-    } else {
-        const liDOM = document.createElement("li")
-        liDOM.innerHTML = inputDOM.value
-        ulDOM.appendChild(liDOM)
-        inputDOM.value = ""
-        const image = document.createElement('img')
-        image.src = 'img/trash.png'
-        image.height = "25"
-        image.classList.add("trash")
-        image.addEventListener("click", removeLi)
-        liDOM.appendChild(image)
-        liDOM.addEventListener("click", updateElement)
-        localStorage.setItem(liDOM.getAttribute("#text"), liDOM.innerHTML)
-        $('.success').toast('show')
+    if (inputDOM.value == "") { //if it's empty
+        $('.empty').toast('show');
+        return;
     }
+    if (localStorage.getItem(inputDOM.value) === null) { // success
+        createLi(inputDOM.value);
+        $('.success').toast('show')
+        inputDOM.value = ""
+    }
+    else { // if it's already in the list
+        $('.same').toast('show')
+    }
+}
+
+// Creating list lines(todos)
+function createLi(text) {
+    const liDOM = document.createElement("li")
+    liDOM.innerHTML = text
+    ulDOM.appendChild(liDOM)
+    localStorage.setItem(text, text)
+    const image = document.createElement('img') // Adding some visual
+    image.src = 'img/trash.png'
+    image.height = "25"
+    image.classList.add("trash")
+    image.addEventListener("click", removeLi)
+    liDOM.appendChild(image)
+    liDOM.addEventListener("click", updateElement)
 }
 
 // Automatically add when "Enter Button" is hit.
@@ -46,5 +60,6 @@ function updateElement() {
 
 // Remove Line
 function removeLi() {
+    localStorage.removeItem(this.parentElement.innerHTML.split("<")[0])
     this.parentElement.remove()
 }
